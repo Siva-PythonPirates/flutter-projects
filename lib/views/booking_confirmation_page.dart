@@ -5,12 +5,13 @@ class BookingConfirmationPage extends StatelessWidget {
   final String name;
   final String location;
   final DateTime bookingTime;
+  final String paymentMethod;
 
   BookingConfirmationPage({
     required this.name,
     required this.location,
     required this.bookingTime,
-
+    required this.paymentMethod,
   });
 
   @override
@@ -48,10 +49,15 @@ class BookingConfirmationPage extends StatelessWidget {
               'Booking Time: ${bookingTime.toString()}',
               style: TextStyle(fontSize: 16),
             ),
+            SizedBox(height: 8),
+            Text(
+              'Payment Method: $paymentMethod',
+              style: TextStyle(fontSize: 16),
+            ),
             SizedBox(height: 32),
             Center(
               child: QrImage(
-                data: 'Parking Spot: $name\nLocation: $location\nBooking Time: ${bookingTime.toString()}',
+                data: 'Parking Spot: $name\nLocation: $location\nBooking Time: ${bookingTime.toString()}\nPayment Method: $paymentMethod',
                 version: QrVersions.auto,
                 size: 200.0,
               ),

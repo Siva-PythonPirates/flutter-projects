@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:numberpicker/numberpicker.dart';
+import 'package:parking_app/views/parking_spot_details_page.dart';
+
+import 'payment_page.dart';
 
 class BookSpotsPage extends StatefulWidget {
   final double pricePerHour;
@@ -12,17 +16,15 @@ class BookSpotsPage extends StatefulWidget {
 
 class _BookSpotsPageState extends State<BookSpotsPage> {
   final _formKey = GlobalKey<FormState>();
-  final _durationController = TextEditingController();
+  int _duration = 1;
+  DateTime? _date;
+
   final _vehicleNumberController = TextEditingController();
   final _customerNameController = TextEditingController();
   final _idProofController = TextEditingController();
-  int _duration = 0;
-
-
 
   @override
   void dispose() {
-    _durationController.dispose();
     _vehicleNumberController.dispose();
     _customerNameController.dispose();
     _idProofController.dispose();
@@ -30,7 +32,7 @@ class _BookSpotsPageState extends State<BookSpotsPage> {
   }
 
   void _calculateTotalPrice() {
-    final duration = int.parse(_durationController.text);
+    setState(() {});
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -42,6 +44,7 @@ class _BookSpotsPageState extends State<BookSpotsPage> {
     );
     if (picked != null) {
       setState(() {
+        _date = picked;
       });
     }
   }
@@ -65,37 +68,57 @@ class _BookSpotsPageState extends State<BookSpotsPage> {
               ),
 
               SizedBox(height: 16),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Duration (in hours)',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter duration';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _duration = int.parse(value!);
+
+              Text(
+                'Duration (in hours)',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              NumberPicker(
+                value: _duration,
+                minValue: 1,
+                maxValue: 24,
+                onChanged: (value) {
+                  setState(() {
+                    _duration = value;
+                  });
                 },
               ),
+
               SizedBox(height: 16),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Date of Booking (MM/DD/YYYY)',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter date of booking';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                },
+
+              Text(
+                'Date of Booking',
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
+              SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      enabled: false,
+                      decoration: InputDecoration(
+                        hintText: _date == null ? 'Select a date' : _date.toString().split(' ')[0],
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (_date == null) {
+                          return 'Please select a date';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      _selectDate(context);
+                    },
+                    child: Text('Select'),
+                  ),
+                ],
+              ),
+
               SizedBox(height: 16),
               TextFormField(
                 decoration: InputDecoration(
@@ -149,11 +172,17 @@ class _BookSpotsPageState extends State<BookSpotsPage> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    // TODO: Navigate to payment page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PaymentPage(parkingSpotName: '', slotNumber: 0, price: widget.pricePerHour * _duration,),
+                      ),
+                    );
                   }
                 },
                 child: Text('Proceed to Pay'),
               ),
+
             ],
           ),
         ),
