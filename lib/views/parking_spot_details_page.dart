@@ -70,67 +70,7 @@ class _ParkingSpotDetailsPageState extends State<ParkingSpotDetailsPage> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Select date:',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      showDatePicker(
-                        context: context,
-                        initialDate: _selectedDate,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(Duration(days: 365)),
-                      ).then((value) {
-                        if (value != null) {
-                          setState(() {
-                            _selectedDate = value;
-                          });
-                        }
-                      });
-                    },
-                    child: Text(
-                      _selectedDate.toString().substring(0, 10),
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Select duration:',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  NumberPicker(
-                    value: _duration,
-                    minValue: 1,
-                    maxValue: 24,
-                    onChanged: (value) {
-                      setState(() {
-                        _duration = value;
-
-                      });
-                    },
-                  ),
-                ],
-              ),
-
+              SizedBox(height: 16),
               Text(
                 'Available Slots:',
 style: TextStyle(
@@ -147,11 +87,12 @@ children: List.generate(
 widget.availableSpaces,
 (index) => GestureDetector(
 onTap: () {
+  print(index+1);
 Navigator.push(
 context,
 MaterialPageRoute(
 builder: (context) => BookSpotsPage(
-pricePerHour: widget.price, spotLocation: widget.name,
+pricePerHour: widget.price, spotLocation: widget.location,spotNumber: (index+1).toString(),
 ),
 ),
 );

@@ -46,6 +46,7 @@ class _HomePageState extends State<HomePage> {
         },
       ),
       bottomNavigationBar: Scaffold(
+
         body: _getPage(_selectedTabIndex),
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedTabIndex,
@@ -54,6 +55,9 @@ class _HomePageState extends State<HomePage> {
               _selectedTabIndex = index;
             });
           },
+
+          fixedColor: Colors.green,
+          unselectedItemColor: Colors.grey,
           items: [
             BottomNavigationBarItem(
               icon: Icon(Icons.local_parking),
@@ -99,7 +103,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _getBookingHistoryPage() {
     // TODO: Implement code to display booking history
-    return BookingHistoryPage();
+    return BookingHistoryPage( qrData: '',);
   }
 
   Widget _getProfilePage({required User user, required List<Booking> bookingHistory}) {

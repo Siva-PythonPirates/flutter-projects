@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import 'history_page.dart';
+
 class BookingConfirmationPage extends StatelessWidget {
-  final String name;
+  final String num;
   final String location;
   final DateTime bookingTime;
   final String paymentMethod;
+  final String cust_name;
 
   BookingConfirmationPage({
-    required this.name,
+    required this.num,
     required this.location,
     required this.bookingTime,
     required this.paymentMethod,
+    required this.cust_name,
   });
 
   @override
@@ -19,6 +23,7 @@ class BookingConfirmationPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Booking Confirmation'),
+        backgroundColor: Colors.green,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -36,7 +41,7 @@ class BookingConfirmationPage extends StatelessWidget {
             ),
             SizedBox(height: 16),
             Text(
-              'Parking Spot Name: $name',
+              'Parking Spot Name: $num',
               style: TextStyle(fontSize: 16),
             ),
             SizedBox(height: 8),
@@ -57,7 +62,7 @@ class BookingConfirmationPage extends StatelessWidget {
             SizedBox(height: 32),
             Center(
               child: QrImage(
-                data: 'Parking Spot: $name\nLocation: $location\nBooking Time: ${bookingTime.toString()}\nPayment Method: $paymentMethod',
+                data: 'Parking Spot: $num\nLocation: $location\nBooking Date & Time: ${bookingTime.toString()}\nPayment Method: $paymentMethod\nCustomer Name: $cust_name',
                 version: QrVersions.auto,
                 size: 200.0,
               ),
@@ -72,6 +77,20 @@ class BookingConfirmationPage extends StatelessWidget {
             Text(
               'We hope you have a great experience!',
               style: TextStyle(fontSize: 16),
+            ),
+            SizedBox(height: 32),
+            ElevatedButton(
+              child: Text('Done'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BookingHistoryPage(
+                      qrData: 'Parking Spot: $num\nLocation: $location\nBooking Date & Time: ${bookingTime.toString()}\nPayment Method: $paymentMethod\nCustomer Name: $cust_name',
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),

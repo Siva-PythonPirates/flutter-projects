@@ -3,14 +3,16 @@ import 'booking_confirmation_page.dart';
 
 class PaymentPage extends StatefulWidget {
   final String parkingSpotName;
-  final int slotNumber;
+  final String slotNumber;
   final double price;
+  final String loc;
 
 
   PaymentPage({
     required this.parkingSpotName,
     required this.slotNumber,
     required this.price,
+    required this.loc,
 
   });
 
@@ -20,12 +22,12 @@ class PaymentPage extends StatefulWidget {
 
 class _PaymentPageState extends State<PaymentPage> {
   String? _selectedPaymentMethod;
-  String? _name;
+  late final String _name;
   String? _carNumber;
 
   void _showPaymentSuccessDialog(BuildContext context,
       String parkingSpotName,
-      int slotNumber,
+      String slotNumber,
       double price,
       String paymentMethod) {
     showDialog(
@@ -49,8 +51,9 @@ class _PaymentPageState extends State<PaymentPage> {
                   MaterialPageRoute(
                     builder: (BuildContext context) =>
                         BookingConfirmationPage(
-                          name: parkingSpotName,
-                          location: 'Example Location',
+                          cust_name:_name,
+                          num: slotNumber,
+                          location: widget.loc,
                           bookingTime: DateTime.now(),
                           paymentMethod: paymentMethod,
                         ),
@@ -58,6 +61,9 @@ class _PaymentPageState extends State<PaymentPage> {
                 );
               },
               child: Text('OK'),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+              ),
             ),
           ],
         );
@@ -78,6 +84,9 @@ class _PaymentPageState extends State<PaymentPage> {
                 Navigator.of(context).pop();
               },
               child: Text('OK'),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+              ),
             ),
           ],
         );
@@ -93,7 +102,7 @@ class _PaymentPageState extends State<PaymentPage> {
     bool paymentSuccessful = true; // Replace with actual payment logic
 
     if (paymentSuccessful) {
-      _showPaymentSuccessDialog(context, widget.parkingSpotName, widget.slotNumber, widget.price, _selectedPaymentMethod ?? 'Unknown');
+      _showPaymentSuccessDialog(context, widget.parkingSpotName, widget.slotNumber , widget.price, _selectedPaymentMethod ?? 'Unknown');
 
     } else {
       _showPaymentFailureDialog(context);
