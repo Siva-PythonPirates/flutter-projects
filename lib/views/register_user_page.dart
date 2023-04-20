@@ -1,150 +1,103 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
-import 'package:parking_app/views/login_page.dart';
+import 'package:path_provider/path_provider.dart';
 
-class RegistrationPage extends StatefulWidget {
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({Key? key}) : super(key: key);
+
   @override
-  _RegistrationPageState createState() => _RegistrationPageState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _RegistrationPageState extends State<RegistrationPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-  late String _password;
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
-        title: Text('Registration'),
-        backgroundColor: Colors.green,
+        title: const Text('Register'),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(height: 20),
-                TextFormField(
-                  keyboardType: TextInputType.name,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your name';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Name',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.person),
-                  ),
+      body: Center(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              TextFormField(
+                controller: _usernameController,
+                decoration: const InputDecoration(
+                  hintText: 'Enter your username',
                 ),
-                SizedBox(height: 20),
-                TextFormField(
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
-                  ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your username';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  hintText: 'Enter your password',
                 ),
-                SizedBox(height: 20),
-                TextFormField(
-                  obscureText: true,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your password';
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                  return null;
+                },
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final directory = await getApplicationDocumentsDirectory();
+                    final filePath = '${directory.path}/user.csv';
+                    print('File path: $filePath');
+                    final csvFile = File(filePath);
+                    List<List<dynamic>> csvList;
+                    if (!csvFile.existsSync()) {
+                      // Create new CSV file if it doesn't exist
+                      csvList = [['Username', 'Password']];
+                    } else {
+                      // Read existing data from CSV file
+                      csvList = const CsvToListConverter().convert(csvFile.readAsStringSync());
                     }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _password = value!;
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
-                  ),
-                ),
-                SizedBox(height: 20),
-                TextFormField(
-                  obscureText: true,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please confirm your password';
-                    }
-                    if (value != _password) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Confirm Password',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Center(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Colors.green[400],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding:
-                      EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                    ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        // TODO: Save user data to database and navigate to home screen
-                        Navigator.pushReplacementNamed(context, '/home');
+                    final username = _usernameController.text;
+                    final password = _passwordController.text;
+                    bool found = false;
+                    for (final row in csvList) {
+                      if (row[0] == username) {
+                        found = true;
+                        break;
                       }
-                    },
-                    child: Text(
-                      'Register',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Already have an account? "),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => LoginPage(),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        "Log in",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.green),
-                      ),
-                    )
-                  ],
-                )
-              ],
-            ),
+                    }
+                    if (found) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Username already exists!'),
+                      ));
+                    } else {
+                      final newRecord = [username, password];
+                      csvList.add(newRecord);
+                      final csvData = ListToCsvConverter().convert(csvList);
+                      await csvFile.writeAsString(csvData);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('User registered successfully!'),
+                      ));
+                    }
+
+                  }
+                },
+                child: const Text('Register'),
+              ),
+            ],
           ),
         ),
       ),
