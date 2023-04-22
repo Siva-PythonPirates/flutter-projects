@@ -7,6 +7,7 @@ import 'history_page.dart';
 import 'parking_spot_page.dart';
 
 class HomePage extends StatefulWidget {
+
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -16,8 +17,6 @@ class _HomePageState extends State<HomePage> {
   int _selectedTabIndex = 0;
 
   get bookingHistory => null;
-
-  get user => null;
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +32,9 @@ class _HomePageState extends State<HomePage> {
               builder = (BuildContext context) => _getBookingHistoryPage();
               break;
             case '/profile':
-              builder = (BuildContext context) =>
-                  _getProfilePage(user: user, bookingHistory: bookingHistory);
+              final args = settings.arguments as Map<String, dynamic>;
+              final loggedInUsername = args['loggedInUsername'];
+              builder = (BuildContext context) => _getProfilePage(loggedInUsername);
               break;
             case '/help':
               builder = (BuildContext context) => _getHelpandSupportPage();
@@ -88,7 +88,7 @@ class _HomePageState extends State<HomePage> {
       case 1:
         return _getBookingHistoryPage();
       case 2:
-        return _getProfilePage(user: user, bookingHistory: bookingHistory);
+        return _getProfilePage('l');
       case 3:
         return _getHelpandSupportPage();
       default:
@@ -106,9 +106,10 @@ class _HomePageState extends State<HomePage> {
     return BookingHistoryPage( qrData: '',);
   }
 
-  Widget _getProfilePage({required User user, required List<Booking> bookingHistory}) {
-    return ProfilePage(user: user, bookingHistory: bookingHistory);
+  Widget _getProfilePage(String loggedInUsername) {
+    return ProfilePage(loggedInUsername: loggedInUsername);
   }
+
 
   Widget _getHelpandSupportPage() {
     // TODO: Implement code to display available parking spots

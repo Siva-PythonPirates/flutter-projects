@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -16,10 +17,14 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  bool _isLoading = false;
+  var un,m,pno;
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -70,43 +75,42 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 32.0),
                   ElevatedButton(
                     onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        final directory = await getApplicationDocumentsDirectory();
-                        final filePath = join(directory.path, 'user.csv');
-                        final textFile = File(filePath);
-                        if (!await textFile.exists()) {
-                          // If the file doesn't exist, create it and write an empty list to it.
-                          await textFile.create(recursive: true);
-                          await textFile.writeAsString(const ListToCsvConverter().convert([]));
-                        }
-                        final text = await textFile.readAsString();
-                        final csvList = const CsvToListConverter().convert(text);
-                        final credentials = csvList.map((row) => '${row[0]}:${row[1]}').toList();
-                        final username = _usernameController.text;
-                        final password = _passwordController.text;
-                        bool found = false;
-                        for (final credential in credentials) {
-                          final credentialParts = credential.split(':');
-                          if (credentialParts[0] == username && credentialParts[1] == password) {
-                            found = true;
-                            break;
-                          }
-                        }
-                        if (found) {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                            content: Text('Logged in successfully!'),
-                          ));
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HomePage(),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      setState(() {
+                        _isLoading = true;
+                      });
+                      String username = _usernameController.text;
+                      String password = _passwordController.text;
+                      bool isAuthorized = await _validateCredentials(
+                        username,
+                        password,
+                      );
+                      setState(() {
+                        _isLoading = false;
+                      });
+                      if (isAuthorized) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
+
+                        print('Success');
+                        // Navigate to the home page
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: Text('Error'),
                             content: Text('Invalid username or password'),
-                          ));
-                        }
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('Ok'),
+                              ),
+                            ],
+                          ),
+                        );
                       }
                     },
                     child: const Text('Login'),
@@ -126,7 +130,15 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
+  Future<bool> _validateCredentials(String username, String password) async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('login_info')
+        .where('username', isEqualTo: username)
+        .where('password', isEqualTo: password)
+        .limit(1)
+        .get();
+    return querySnapshot.docs.isNotEmpty;
+  }
 
 }
 

@@ -1,106 +1,111 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:csv/csv.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
-
+class RegistrationPage extends StatefulWidget {
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  _RegistrationPageState createState() => _RegistrationPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
-  final _formKey = GlobalKey<FormState>();
+class _RegistrationPageState extends State<RegistrationPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize Firebase app and database reference
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text('Register'),
+        title: Text('Registration Page'),
       ),
-      body: Center(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              TextFormField(
-                controller: _usernameController,
-                decoration: const InputDecoration(
-                  hintText: 'Enter your username',
-                ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter your username';
-                  }
-                  return null;
-                },
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 16.0),
+            Text('Username'),
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                hintText: 'Enter your username',
               ),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  hintText: 'Enter your password',
-                ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
+            ),
+            SizedBox(height: 16.0),
+            Text('Password'),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                hintText: 'Enter your password',
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    final directory = await getApplicationDocumentsDirectory();
-                    final filePath = '${directory.path}/user.csv';
-                    print('File path: $filePath');
-                    final csvFile = File(filePath);
-                    List<List<dynamic>> csvList;
-                    if (!csvFile.existsSync()) {
-                      // Create new CSV file if it doesn't exist
-                      csvList = [['Username', 'Password']];
-                    } else {
-                      // Read existing data from CSV file
-                      csvList = const CsvToListConverter().convert(csvFile.readAsStringSync());
-                    }
-                    final username = _usernameController.text;
-                    final password = _passwordController.text;
-                    bool found = false;
-                    for (final row in csvList) {
-                      if (row[0] == username) {
-                        found = true;
-                        break;
-                      }
-                    }
-                    if (found) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('Username already exists!'),
-                      ));
-                    } else {
-                      final newRecord = [username, password];
-                      csvList.add(newRecord);
-                      final csvData = ListToCsvConverter().convert(csvList);
-                      await csvFile.writeAsString(csvData);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('User registered successfully!'),
-                      ));
-                    }
+            ),
+            SizedBox(height: 16.0),
+            Text('Phone Number'),
+            TextField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                hintText: 'Enter your phone number',
+              ),
+            ),
+            SizedBox(height: 16.0),
+            Text('Email'),
+            TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                hintText: 'Enter your email',
+              ),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                _register();
+                Map<String, String> login = {
+                  // 'name': 'Parking Spot 1',
+                  // 'location': GeoPoint(13.0881, 13.0881, 80.2838),
+                  // 'availableSpaces' : 10,
 
-                  }
-                },
-                child: const Text('Register'),
-              ),
-            ],
-          ),
+                  // 'name': 'Parking Spot 1',
+                  // 'latitude': 37.7749.toString(),
+                  // 'longitude': (0-122.4194).toString(),
+                  // 'available_spaces': 10.toString(),
+
+                  'username': _usernameController.text,
+                  'password': _passwordController.text,
+                  'phone_number': _phoneController.text,
+                  'email_id': _emailController.text,
+                };
+                FirebaseFirestore.instance.collection('login_info').doc().set(login);
+
+              },
+              child: const Text('Register'),
+            ),
+          ],
         ),
       ),
     );
   }
+
+  void _register() {
+    String username = _usernameController.text;
+    String password = _passwordController.text;
+    String phone = _phoneController.text;
+    String email = _emailController.text;
+
+    print('Username: $username');
+    print('Password: $password');
+    print('Phone: $phone');
+    print('Email: $email');
+  }
 }
+

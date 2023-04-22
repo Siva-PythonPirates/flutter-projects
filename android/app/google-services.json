@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "922747028171",
+    "project_id": "parking-reservation-syst-e479e",
+    "storage_bucket": "parking-reservation-syst-e479e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:922747028171:android:f3a2bddcbeec8c6866d14e",
+        "android_client_info": {
+          "package_name": "com.example.parking_reservation_system"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "922747028171-7f487riu2g1i6sv4f9vf4cq54g6h4h67.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_Bt2SItJVkrbAWmVjXQe8hg-gTvUE-Qc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "922747028171-7f487riu2g1i6sv4f9vf4cq54g6h4h67.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
